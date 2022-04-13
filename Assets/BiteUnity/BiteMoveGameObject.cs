@@ -9,6 +9,7 @@ using Bite.Compiler;
 using Bite.Modules.Callables;
 using Bite.Runtime;
 using Bite.Runtime.CodeGen;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Scripting;
 
@@ -26,6 +27,7 @@ public class BiteMoveGameObject : MonoBehaviour
 
     void Start()
     {
+        Debug.Log("Started BiteMoveGameObject!");
         vm.InitVm();
         vm.RegisterSystemModuleCallables();
         vm.SynchronizationContext = SynchronizationContext.Current;
@@ -36,6 +38,8 @@ public class BiteMoveGameObject : MonoBehaviour
                 { "Vector3", m_Vector3 }
             });
 
+        EditorApplication.playModeStateChanged += EditorApplication_playModeStateChanged;
+
         IEnumerable< string > files = Directory.EnumerateFiles(
             "Assets\\Bite\\TestMoveGameObject",
             "*.bite",
@@ -45,10 +49,27 @@ public class BiteMoveGameObject : MonoBehaviour
 
         program = compiler.Compile(files.Select(File.ReadAllText));
 
+
         Task.Run(() =>
         {
+            Debug.Log("Running program");
             vm.Interpret(program);
+        }).ContinueWith(t=>
+        {
+            Debug.Log("Stopped!");
+            if (t.IsFaulted)
+            {
+                Debug.LogError(t.Exception.InnerException.Message);
+            }
         });       
+    }
+
+    private void EditorApplication_playModeStateChanged(PlayModeStateChange obj)
+    {
+        if(obj == PlayModeStateChange.ExitingPlayMode)
+        {
+            vm.Stop();
+        }
     }
 
     private void Update()

@@ -11,6 +11,7 @@ public class BiteCreateGameObject : MonoBehaviour
 {
     void Start()
     {
+        Debug.Log("Started!");
         IEnumerable < string > files = Directory.EnumerateFiles(
             "Assets\\Bite\\TestCreateGameObject",
             "*.bite",

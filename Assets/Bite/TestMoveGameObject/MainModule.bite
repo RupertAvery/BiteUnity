@@ -9,11 +9,7 @@ using UnitySystem;
 while ( true ) {
     sync {
         var b = GameObjectFromUnity.transform.position;
-    }
-
-    b.x += 0.001;
-
-    sync {
+        b.x += 0.001;
         GameObjectFromUnity.transform.position = b;
     }
 }
